@@ -1,6 +1,7 @@
 package com.blackpanther.kakuroHelper.controller;
 
 import com.blackpanther.kakuroHelper.dto.KakuroDto;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,18 +11,30 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-public class Combinations {
+public class CombinationController {
 
     private static String getStringFromList(List<Integer> integerList) {
         return integerList.stream().map(String::valueOf).collect(Collectors.joining(","));
     }
 
-    @GetMapping("/kakuroHelper/{target}/{places}")
+    @GetMapping
+    public String home(){
+        return "Welcome to kakuro helper!";
+    }
+
+    @GetMapping("/{target}/{places}")
     public KakuroDto getCombinations(
             @PathVariable Integer target,
             @PathVariable Integer places) {
         List<ArrayList<Integer>> combinations = calculateCombinations(new ArrayList<>(), 1, target, places, new ArrayList<>());
-        List<String> strCombinations = combinations.stream().map(Combinations::getStringFromList).collect(Collectors.toList());
+        if(CollectionUtils.isEmpty(combinations)){
+            return KakuroDto.builder()
+                    .target(target)
+                    .digits(places)
+                    .noOfResults(0).build();
+        }
+
+        List<String> strCombinations = combinations.stream().map(CombinationController::getStringFromList).collect(Collectors.toList());
         return KakuroDto.builder()
                 .target(target)
                 .digits(places)
